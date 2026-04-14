@@ -111,8 +111,6 @@ class HHParser:
     
     def _process_vacancy(self, data: dict) -> dict:
 
-        #преобразование сырых данных API в удобный формат
-        #обработка зарплаты
         salary = data.get('salary')
         salary_from = None
         salary_to = None
@@ -123,7 +121,6 @@ class HHParser:
             salary_to = salary.get('to')
             salary_currency = salary.get('currency')
         
-        # строка зарплаты для вывода
         salary_str = 'не указана'
         if salary_from and salary_to:
             salary_str = f"{salary_from} - {salary_to} {salary_currency}"
@@ -132,10 +129,8 @@ class HHParser:
         elif salary_to:
             salary_str = f"до {salary_to} {salary_currency}"
         
-        # навыки
         key_skills = [skill['name'] for skill in data.get('key_skills', [])]
         
-        # требования и обязанности
         description = data.get('description', '')
         import re
         description_clean = re.sub(r'<[^>]+>', '', description) if description else ''
@@ -161,7 +156,6 @@ class HHParser:
         }
     
     def save_to_json(self, data: list, filename: str = None): 
-        #сохранение в json
         if filename is None:
             filename = f"vacancies_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         
@@ -177,7 +171,6 @@ class HHParser:
         print("\nСтатистика:")
         print(f"Всего вакансий: {len(data)}")
         
-        # работодатели
         employers = {}
         for vac in data:
             emp = vac.get('employer', 'Не указан')
@@ -187,7 +180,6 @@ class HHParser:
         for emp, count in sorted(employers.items(), key=lambda x: x[1], reverse=True)[:5]:
             print(f"  {emp}: {count} вакансий")
         
-        # навыки
         all_skills = []
         for vac in data:
             all_skills.extend(vac.get('key_skills', []))
@@ -198,15 +190,12 @@ class HHParser:
         print("\n🔧 Топ навыков:")
         for skill, count in skill_stats.most_common(10):
             print(f"  {skill}: {count} вакансий")
-        
-        # где указана зп
         salaries = [vac for vac in data if vac.get('salary_from') or vac.get('salary_to')]
         print(f"\nВакансий с указанной зарплатой: {len(salaries)}/{len(data)}")
 
 
 def main():
     parser = HHParser()
-    # параметры поиска
     search_query = "Python разработчик" 
     max_pages = 3  
     
